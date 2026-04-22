@@ -49,25 +49,18 @@ height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 out = cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (width, height))
-
-# Define Polygon Zone (Mapped to Kutch Copper Gate Perspective)
 POLYGON_ZONE = np.array([[100, 350], [550, 350], [450, 150], [200, 150]], np.int32)
 
 print("Starting Security System with Live Telegram Alerts...")
 
-# ---------------------------------------------------------
-# 3. MAIN PROCESSING LOOP
-# ---------------------------------------------------------
 while cap.isOpened():
     success, frame = cap.read()
     if not success:
         break
 
-    # Run object tracking
     results = model.track(frame, persist=True, classes=[0], verbose=False)
     persons_in_zone = 0
 
-    # Draw the Restricted Polygon Zone
     cv2.polylines(frame, [POLYGON_ZONE], isClosed=True, color=(255, 255, 0), thickness=2)
     cv2.putText(frame, "SECURE ZONE", (200, 140), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
 
@@ -77,20 +70,16 @@ while cap.isOpened():
 
         for box, track_id in zip(boxes, track_ids):
             x1, y1, x2, y2 = map(int, box)
-            
-            # Find center of feet
+           
             cx, cy = int((x1 + x2) / 2), int(y2) 
 
-            # Check if feet are inside the polygon
             is_inside = cv2.pointPolygonTest(POLYGON_ZONE, (cx, cy), False)
 
             if is_inside >= 0:
                 persons_in_zone += 1
-                color = (0, 0, 255) # Red for Inside
+                color = (0, 0, 255) 
             else:
-                color = (0, 255, 0) # Green for Outside
-
-            # Draw Bounding Box, ID, and Center Dot
+                color = (0, 255, 0) 
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
             cv2.circle(frame, (cx, cy), 6, color, -1)
             cv2.putText(frame, f"ID: {int(track_id)}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
@@ -99,25 +88,16 @@ while cap.isOpened():
     # 4. TAILGATING ALERT & TELEGRAM TRIGGER
     # ---------------------------------------------------------
     if persons_in_zone > 1:
-        # Screen Alert
         cv2.putText(frame, "ALERT: TAILGATING DETECTED!", (30, 50), cv2.FONT_HERSHEY_TRIPLEX, 1, (0, 0, 255), 3)
-        
         current_time = time.time()
-        
-        # Check Cooldown before sending Telegram message
+
         if (current_time - last_alert_time) > COOLDOWN_SECONDS:
             alert_msg = f"🚨 TAILGATING ALERT! 🚨\nGate: Main Entrance (Kutch Copper)\nIntruders in Zone: {persons_in_zone}\nAction Required!"
-            
-            # Send the alert
             send_telegram_alert(frame, alert_msg)
-            
-            # Reset timer
             last_alert_time = current_time 
 
-    # Save to output video
     out.write(frame)
 
-# Clean up
 cap.release()
 out.release()
 print("Processing complete! Application closed successfully.")
