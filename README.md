@@ -1,8 +1,8 @@
 # Industrial Tailgating Detection System (Computer Vision)
 
-![Tailgating Alert Demo]
-(<img width="767" height="432" alt="Tailgatting OP1" src="https://github.com/user-attachments/assets/6f2305d6-41f5-4462-a6ef-4f53b214119c" />
-)
+![Tailgating Alert Demo]:
+<img width="767" height="432" alt="Tailgatting OP1" src="https://github.com/user-attachments/assets/6f2305d6-41f5-4462-a6ef-4f53b214119c" />
+
 
 An AI-powered computer vision solution engineered to enforce physical security protocols at high-traffic industrial entry points. This system autonomously monitors restricted access zones, detecting and alerting security personnel to unauthorized "tailgating" (piggybacking) events in real-time.
 
